@@ -37,7 +37,7 @@ make_sure_dir_exists(tmp_dir)
 
 def parse_config():
     with open(path.join(context.src_dir, 'config.yml')) as config:
-        return yaml.load(config)
+        return yaml.load(config, Loader=yaml.FullLoader)
 
 
 def update_submodules():
@@ -177,7 +177,7 @@ def query_clock_offset(ntp_addr, ssh_cmd):
 def get_git_summary(mode='local', remote_path=None):
     git_summary_src = path.join(context.src_dir, 'experiments',
                                 'git_summary.sh')
-    local_git_summary = check_output(git_summary_src, cwd=context.base_dir)
+    local_git_summary = check_output(git_summary_src, cwd=context.base_dir).decode("utf-8")
 
     if mode == 'remote':
         r = parse_remote_path(remote_path)
@@ -187,7 +187,7 @@ def get_git_summary(mode='local', remote_path=None):
         ssh_cmd = 'cd %s; %s' % (r['base_dir'], git_summary_src)
         ssh_cmd = ' '.join(r['ssh_cmd']) + ' "%s"' % ssh_cmd
 
-        remote_git_summary = check_output(ssh_cmd, shell=True)
+        remote_git_summary = check_output(ssh_cmd, shell=True).decode("utf-8")
 
         if local_git_summary != remote_git_summary:
             sys.stderr.write(
